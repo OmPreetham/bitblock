@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BITBLOCK SEXY ASCII</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="logo-container">
+        <div class="logo-letters">
+            <div class="logo-letter">B</div>
+            <div class="logo-letter">I</div>
+            <div class="logo-letter">T</div>
+            <div class="logo-letter">B</div>
+            <div class="logo-letter">L</div>
+            <div class="logo-letter">O</div>
+            <div class="logo-letter">C</div>
+            <div class="logo-letter">K</div>
+        </div>
+        <div class="logo-subtitle">SEXY ASCII</div>
+    </div>
+
+    <div class="ascii-controls" id="asciiControls" style="display: none;">
+        <button class="ascii-button" onclick="copyToClipboard()">COPY TEXT</button>
+        <button class="ascii-button" onclick="exportAsTxt()">SAVE TXT</button>
+    </div>
+
+    <div class="space-container">
+        <div class="grid" id="grid"></div>
+        <div class="initial-message" id="initialMessage" onclick="document.getElementById('fileInput').click()">
+            <h3>DROP / UPLOAD</h3>
+            <p>for ascii</p>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+    </div>
+
+    <div class="converter-container" id="converterContainer">
+        <pre id="asciiOutput" class="ascii-output"></pre>
+    </div>
+
+    <div class="drop-zone" id="dropZone">
+    </div>
+
+    <button class="settings-button" onclick="toggleSettings()">CUSTOMIZATION</button>
+
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-panel-header">
+            <h3>CUSTOMIZATION</h3>
+            <button class="close-button" onclick="toggleSettings()">✗</button>
+        </div>
+        
+        <div class="settings-section">
+            <h4>IMAGE PROCESSING</h4>
+            <div class="control-group">
+                <label>Width (characters): <span class="value-display" id="widthValue">100</span></label>
+                <input type="range" id="widthInput" value="100" min="20" max="200" oninput="updateValue(this, 'widthValue')">
+            </div>
+            <div class="control-group">
+                <label>Brightness: <span class="value-display" id="brightnessValue">100%</span></label>
+                <input type="range" id="brightnessInput" value="100" min="0" max="200" oninput="updateValue(this, 'brightnessValue', '%')">
+            </div>
+            <div class="control-group">
+                <label>Contrast: <span class="value-display" id="contrastValue">100%</span></label>
+                <input type="range" id="contrastInput" value="100" min="0" max="200" oninput="updateValue(this, 'contrastValue', '%')">
+            </div>
+            <div class="control-group">
+                <label>Dithering:</label>
+                <div class="select-wrapper">
+                    <select id="ditheringInput" onchange="updateDithering(this.value)">
+                        <option value="none">NONE</option>
+                        <option value="floyd-steinberg">FLOYD-STEINBERG</option>
+                        <option value="atkinson">ATKINSON</option>
+                        <option value="ordered">ORDERED</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h4>ASCII STYLE</h4>
+            <div class="control-group">
+                <label>Character Set:</label>
+                <div class="select-wrapper">
+                    <select id="presetChars" onchange="updateCharSetFromPreset(this.value)">
+                        <option value="standard">STANDARD (@%#*+=-:. )</option>
+                        <option value="blocks">BLOCKS (█▓▒░ )</option>
+                        <option value="minimal">MINIMAL (#. )</option>
+                        <option value="letters">LETTERS (MWBHKDPO. )</option>
+                        <option value="custom">CUSTOM</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Custom Characters:</label>
+                <input type="text" id="charSetInput" value="@%#*+=-:. " class="wide" onchange="updateCharSet(this.value)">
+            </div>
+            <div class="control-group">
+                <label>Font Size: <span class="value-display" id="fontSizeValue">9px</span></label>
+                <input type="range" id="fontSizeInput" value="9" min="4" max="20" oninput="updateFontSize(this.value)">
+            </div>
+            <div class="control-group">
+                <label>Text Color:</label>
+                <input type="color" id="colorInput" value="#ffffff" onchange="updateTextColor(this.value)">
+            </div>
+            <div class="control-group">
+                <label>Color Mode:</label>
+                <div class="select-wrapper">
+                    <select id="colorMode" onchange="updateColorMode(this.value)">
+                        <option value="normal">NORMAL</option>
+                        <option value="inverted">INVERTED</option>
+                        <option value="grayscale">GRAYSCALE</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h4>ADVANCED</h4>
+            <div class="control-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="edgeToggle" onchange="toggleEdgeDetection()">
+                    <label for="edgeToggle">Enable Edge Detection</label>
+                </div>
+                <div id="edgeControls" style="display: none;">
+                    <label>Edge Detection: <span class="value-display" id="edgeValue">0</span></label>
+                    <input type="range" id="edgeInput" value="0" min="0" max="100" oninput="updateValue(this, 'edgeValue')">
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="thresholdToggle" onchange="toggleThreshold()">
+                    <label for="thresholdToggle">Enable Threshold</label>
+                </div>
+                <div id="thresholdControls" style="display: none;">
+                    <label>Threshold: <span class="value-display" id="thresholdValue">128</span></label>
+                    <input type="range" id="thresholdInput" value="128" min="0" max="255" oninput="updateValue(this, 'thresholdValue')">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
