@@ -4,7 +4,7 @@ A modern, interactive ASCII art generator with real-time customization and a sle
 
 ## Live Demo
 
-Try it out on CodePen: [BITBLOCK SEXY ASCII](https://codepen.io/ompreetham/pen/QWPBwLg)
+Try it out on CodePen: [BITBLOCK SEXY ASCII](https://codepen.io/OmPreetham/pen/emYREJN)
 
 ![BITBLOCK ASCII](bitblock.gif)
 

@@ -10,7 +10,7 @@ BITBLOCK SEXY ASCII is a web-based ASCII art generator that combines modern web 
 
 ## Live Demo
 
-Try it out on CodePen: [BITBLOCK SEXY ASCII](https://codepen.io/ompreetham/pen/QWPBwLg)
+Try it out on CodePen: [BITBLOCK SEXY ASCII](https://codepen.io/OmPreetham/pen/emYREJN)
 
 ![BITBLOCK ASCII](bitblock.gif)
 
