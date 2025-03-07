@@ -35,6 +35,9 @@ let imageProcessingOptions = {
     }
 };
 
+let isWebcamActive = false;
+let webcamAnimationFrame = null;
+
 function toggleSettings() {
     const panel = document.getElementById('settingsPanel');
     panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
@@ -74,6 +77,10 @@ function updateValue(input, displayId, suffix = '') {
         imageProcessingOptions.threshold.value = parseInt(input.value);
     }
     
+    if (isWebcamActive) {
+        // Don't reprocess for webcam as it's already updating in real-time
+        return;
+    }
     reprocessImage();
 }
 
@@ -237,14 +244,85 @@ dropZone.addEventListener('drop', async (e) => {
     
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
+        stopWebcam(); // Stop webcam before processing new image
         await processImage(file);
     }
 });
 
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        stopWebcam(); // Stop webcam before processing new image
+        processImage(file);
+    }
+}
+
+// Image preview functionality
+function updateImagePreview(source) {
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    const previewImg = document.getElementById('imagePreview');
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Show the preview container
+    previewContainer.style.display = 'block';
+    
+    if (source instanceof File) {
+        // Handle file preview
+        previewImg.src = URL.createObjectURL(source);
+        previewImg.style.display = 'block';
+        
+        // Let the browser maintain aspect ratio naturally
+        previewImg.style.width = 'auto';
+        previewImg.style.height = 'auto';
+        previewImg.style.maxWidth = '100%';
+        previewImg.style.maxHeight = '100%';
+        
+    } else if (source instanceof HTMLVideoElement) {
+        // For webcam preview, keep aspect ratio 
+        const videoRatio = source.videoWidth / source.videoHeight;
+        
+        // Set canvas size to match video's aspect ratio
+        const maxWidth = previewContainer.clientWidth;
+        const maxHeight = previewContainer.clientHeight;
+        
+        let canvasWidth, canvasHeight;
+        
+        if (maxWidth / videoRatio <= maxHeight) {
+            // Width is the limiting factor
+            canvasWidth = maxWidth;
+            canvasHeight = maxWidth / videoRatio;
+        } else {
+            // Height is the limiting factor
+            canvasHeight = maxHeight;
+            canvasWidth = maxHeight * videoRatio;
+        }
+        
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        
+        // Draw video frame to canvas, maintaining aspect ratio
+        ctx.drawImage(source, 0, 0, canvasWidth, canvasHeight);
+        
+        // Convert canvas to image
+        previewImg.src = canvas.toDataURL('image/png');
+        previewImg.style.display = 'block';
+        previewImg.style.width = 'auto';
+        previewImg.style.height = 'auto';
+        previewImg.style.maxWidth = '100%';
+        previewImg.style.maxHeight = '100%';
+    }
+}
+
 async function processImage(file) {
     currentImageFile = file;
-    document.getElementById('initialMessage').style.opacity = '0';
+    const initialMessage = document.getElementById('initialMessage');
+    initialMessage.classList.add('bottom');
     document.getElementById('asciiControls').style.display = 'flex';
+    
+    // Update preview with the file
+    updateImagePreview(file);
+    
     reprocessImage();
 }
 
@@ -259,6 +337,7 @@ async function reprocessImage() {
     });
 
     const width = parseInt(document.getElementById('widthInput').value);
+    // Calculate height to maintain aspect ratio
     const height = Math.floor(width * (img.height / img.width) * 0.5);
 
     const canvas = document.createElement('canvas');
@@ -354,11 +433,130 @@ function exportAsTxt() {
     URL.revokeObjectURL(url);
 }
 
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-        processImage(file);
+async function startWebcam() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'user',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            } 
+        });
+        
+        const video = document.getElementById('webcamVideo');
+        video.srcObject = stream;
+        await video.play();
+        
+        // Move buttons to bottom and show controls
+        const initialMessage = document.getElementById('initialMessage');
+        initialMessage.classList.add('bottom');
+        document.getElementById('asciiControls').style.display = 'flex';
+        
+        // Update webcam button
+        const webcamButton = document.querySelector('.webcam-button');
+        const pulseDot = webcamButton.querySelector('.pulse-dot');
+        webcamButton.innerHTML = `
+            <span class="pulse-dot active"></span>
+            STOP WEBCAM
+        `;
+        webcamButton.onclick = stopWebcam;
+        
+        isWebcamActive = true;
+        processWebcamFrame();
+        
+    } catch (err) {
+        console.error('Error accessing webcam:', err);
+        alert('Unable to access webcam. Please make sure you have granted camera permissions.');
     }
 }
 
-animate(); 
+function stopWebcam() {
+    if (isWebcamActive) {
+        const video = document.getElementById('webcamVideo');
+        if (video.srcObject) {
+            const stream = video.srcObject;
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            video.srcObject = null;
+        }
+        
+        if (webcamAnimationFrame) {
+            cancelAnimationFrame(webcamAnimationFrame);
+            webcamAnimationFrame = null;
+        }
+        
+        // Reset webcam button
+        const webcamButton = document.querySelector('.webcam-button');
+        webcamButton.innerHTML = `
+            <span class="pulse-dot"></span>
+            WEBCAM
+        `;
+        webcamButton.onclick = startWebcam;
+        
+        isWebcamActive = false;
+        document.getElementById('asciiOutput').textContent = ''; // Clear the output
+        
+        // Hide preview container
+        document.getElementById('imagePreviewContainer').style.display = 'none';
+    }
+}
+
+function processWebcamFrame() {
+    if (!isWebcamActive) return;
+
+    const video = document.getElementById('webcamVideo');
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Update preview with webcam
+    updateImagePreview(video);
+    
+    const width = parseInt(document.getElementById('widthInput').value);
+    // Calculate height maintaining aspect ratio
+    const height = Math.floor(width * (video.videoHeight / video.videoWidth) * 0.5);
+    
+    canvas.width = width;
+    canvas.height = height;
+    
+    ctx.filter = `brightness(${imageProcessingOptions.brightness}%) contrast(${imageProcessingOptions.contrast}%)`;
+    ctx.drawImage(video, 0, 0, width, height);
+    
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const pixels = imageData.data;
+    
+    applyImageProcessing(pixels, width, height);
+    
+    let ascii = '';
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const idx = (y * width + x) * 4;
+            const brightness = (pixels[idx] + pixels[idx + 1] + pixels[idx + 2]) / 765;
+            ascii += getAsciiChar(brightness);
+        }
+        ascii += '\n';
+    }
+    
+    document.getElementById('asciiOutput').textContent = ascii;
+    webcamAnimationFrame = requestAnimationFrame(processWebcamFrame);
+}
+
+// Function to update preview when customization settings change
+function updatePreviewWithSettings() {
+    if (isWebcamActive) {
+        const video = document.getElementById('webcamVideo');
+        updateImagePreview(video);
+    } else if (currentImageFile) {
+        updateImagePreview(currentImageFile);
+    }
+}
+
+// Add listeners to update preview when settings change
+document.getElementById('brightnessInput').addEventListener('input', updatePreviewWithSettings);
+document.getElementById('contrastInput').addEventListener('input', updatePreviewWithSettings);
+document.getElementById('ditheringInput').addEventListener('change', updatePreviewWithSettings);
+document.getElementById('colorMode').addEventListener('change', updatePreviewWithSettings);
+
+animate();
+
+// Clean up webcam when window is closed
+window.addEventListener('beforeunload', stopWebcam);
