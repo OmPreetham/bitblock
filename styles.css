@@ -60,34 +60,40 @@ body {
 
 .settings-button {
     position: fixed;
-    top: 20px;
+    bottom: 20px;
     right: 20px;
     z-index: 101;
-    background: #000000;
-    border: 1px solid #333;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
-    padding: 10px 20px;
+    padding: 8px 16px;
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 1px;
-    font-weight: bold;
+    font-size: 12px;
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .settings-panel {
     position: fixed;
-    top: 20px;
+    bottom: 80px;
     right: 20px;
     width: 350px;
-    max-height: 90vh;
+    max-height: 80vh;
     overflow-y: auto;
-    background: #000000;
-    border: 1px solid #333;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 20px;
     z-index: 1001;
     display: none;
     color: #fff;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    backdrop-filter: blur(10px);
 }
 
 .settings-panel-header {
@@ -233,12 +239,11 @@ select::-ms-expand {
 
 .ascii-controls {
     position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 20px;
+    left: 20px;
     display: flex;
     gap: 10px;
-    z-index: 3;
+    z-index: 1000;
 }
 
 .ascii-button {
@@ -304,7 +309,7 @@ select::-ms-expand {
     transform: translate(-50%, -50%);
     z-index: 2;
     text-align: center;
-    transition: all 0.5s ease-in-out;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     background: rgba(0, 0, 0, 0.2);
     padding: 30px 50px;
     border-radius: 10px;
@@ -313,11 +318,22 @@ select::-ms-expand {
 
 .initial-message.bottom {
     top: auto;
-    bottom: 20px;
-    transform: translate(-50%, 0);
-    padding: 15px 50px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 6px;
+    bottom: 0px;
+    left: 50%;
+    padding: 0;
+    background: none;
+    backdrop-filter: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.initial-message.bottom .button-group {
+    margin: 0;
+    display: flex;
+    gap: 10px;
+    pointer-events: all;
 }
 
 .initial-message.bottom h3,
@@ -533,4 +549,208 @@ select::-ms-expand {
     width: 100%; /* Changed from max-width to width */
     height: auto; /* This ensures the aspect ratio is maintained */
     object-fit: contain;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .button-text {
+        display: none;
+    }
+    
+    .ascii-button,
+    .settings-button {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        justify-content: center;
+    }
+    
+    .ascii-button {
+        padding: 12px;
+        font-size: 16px;
+    }
+    
+    .ascii-button i {
+        margin: 0;
+    }
+    
+    .settings-button {
+        padding: 12px;
+    }
+    
+    .ascii-controls {
+        bottom: 20px;
+        left: 20px;
+    }
+    
+    .settings-panel {
+        width: 90%;
+        max-width: 350px;
+        height: auto;
+        max-height: 85vh;
+        bottom: 70px;
+        right: 50%;
+        transform: translateX(50%);
+        left: auto;
+        top: auto;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        margin: 0;
+    }
+    
+    .settings-panel-header {
+        position: sticky;
+        top: 0;
+        background: rgba(0, 0, 0, 0.95);
+        padding: 12px;
+        margin: -15px -15px 15px -15px;
+        backdrop-filter: blur(10px);
+        z-index: 2;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .settings-section {
+        padding: 0;
+        margin-bottom: 12px;
+    }
+    
+    .control-group {
+        margin: 12px 0;
+    }
+    
+    input[type="range"] {
+        width: calc(100% - 10px);
+        margin: 8px 5px;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .select-wrapper {
+        width: calc(100% - 2px);
+    }
+    
+    .settings-panel-header h3 {
+        font-size: 14px;
+    }
+    
+    .control-group label {
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+    
+    .value-display {
+        font-size: 11px;
+    }
+    
+    input[type="text"].wide {
+        width: calc(100% - 16px);
+    }
+    
+    .settings-section h4 {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .initial-message.bottom .button-group {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .settings-panel {
+        width: 95%;
+        max-height: 80vh;
+        bottom: 65px;
+        padding: 12px;
+    }
+
+    .settings-panel-header {
+        padding: 10px;
+        margin: -12px -12px 12px -12px;
+    }
+    
+    .control-group {
+        margin: 10px 0;
+    }
+    
+    input[type="range"] {
+        margin: 6px 0;
+    }
+    
+    .settings-section {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+    }
+}
+
+/* Update button styles for all devices */
+.ascii-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ascii-button i {
+    font-size: 1.2em;
+}
+
+/* Update webcam button for mobile */
+.webcam-button.active i.fa-video {
+    color: #ff3333;
+}
+
+/* Adjust font size based on screen width */
+@media (max-width: 480px) {
+    .ascii-output {
+        font-size: 4px;
+        line-height: 4px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .ascii-output {
+        font-size: 5px;
+        line-height: 5px;
+    }
+}
+
+@media (min-width: 769px) {
+    .ascii-output {
+        font-size: 9px;
+        line-height: 9px;
+    }
+}
+
+/* Update button hover states */
+.settings-button:hover,
+.ascii-button:hover {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Ensure buttons are above the grid */
+.ascii-button,
+.settings-button {
+    z-index: 1000;
+}
+
+/* Bottom controls wrapper to ensure proper spacing */
+.bottom-controls {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.bottom-controls > * {
+    pointer-events: all;
 }

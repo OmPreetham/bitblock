@@ -24,7 +24,7 @@ let imageProcessingOptions = {
     brightness: 100,
     contrast: 100,
     dithering: 'none',
-    colorMode: 'normal',
+    colorMode: 'inverted',
     edgeDetection: {
         enabled: false,
         value: 0
@@ -454,10 +454,11 @@ async function startWebcam() {
         
         // Update webcam button
         const webcamButton = document.querySelector('.webcam-button');
-        const pulseDot = webcamButton.querySelector('.pulse-dot');
+        webcamButton.classList.add('active');
         webcamButton.innerHTML = `
             <span class="pulse-dot active"></span>
-            STOP WEBCAM
+            <i class="fas fa-video"></i>
+            <span class="button-text">STOP WEBCAM</span>
         `;
         webcamButton.onclick = stopWebcam;
         
@@ -487,9 +488,11 @@ function stopWebcam() {
         
         // Reset webcam button
         const webcamButton = document.querySelector('.webcam-button');
+        webcamButton.classList.remove('active');
         webcamButton.innerHTML = `
             <span class="pulse-dot"></span>
-            WEBCAM
+            <i class="fas fa-video"></i>
+            <span class="button-text">WEBCAM</span>
         `;
         webcamButton.onclick = startWebcam;
         

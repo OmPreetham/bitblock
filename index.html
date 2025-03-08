@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITBLOCK SEXY ASCII</title>
+    <title>BITBLOCK - SEXY ASCII</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -21,22 +22,40 @@
         <div class="logo-subtitle">SEXY ASCII</div>
     </div>
 
-    <div class="ascii-controls" id="asciiControls" style="display: none;">
-        <button class="ascii-button" onclick="copyToClipboard()">COPY TEXT</button>
-        <button class="ascii-button" onclick="exportAsTxt()">SAVE TXT</button>
+    <div class="bottom-controls">
+        <div class="ascii-controls" id="asciiControls" style="display: none;">
+            <button class="ascii-button" onclick="copyToClipboard()">
+                <i class="fas fa-copy"></i>
+                <span class="button-text">COPY TEXT</span>
+            </button>
+            <button class="ascii-button" onclick="exportAsTxt()">
+                <i class="fas fa-download"></i>
+                <span class="button-text">SAVE TXT</span>
+            </button>
+        </div>
+
+        <div class="initial-message" id="initialMessage">
+            <div class="button-group">
+                <button class="ascii-button" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-image"></i>
+                    <span class="button-text">SELECT / DROP</span>
+                </button>
+                <button class="ascii-button webcam-button" onclick="startWebcam()">
+                    <span class="pulse-dot"></span>
+                    <i class="fas fa-video"></i>
+                    <span class="button-text">WEBCAM</span>
+                </button>
+            </div>
+        </div>
+
+        <button class="settings-button" onclick="toggleSettings()">
+            <i class="fas fa-sliders-h"></i>
+            <span class="button-text">CUSTOMIZATION</span>
+        </button>
     </div>
 
     <div class="space-container">
         <div class="grid" id="grid"></div>
-        <div class="initial-message" id="initialMessage">
-            <div class="button-group">
-                <button class="ascii-button" onclick="document.getElementById('fileInput').click()">SELECT FILE</button>
-                <button class="ascii-button webcam-button" onclick="startWebcam()">
-                    <span class="pulse-dot"></span>
-                    WEBCAM
-                </button>
-            </div>
-        </div>
         <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
         <video id="webcamVideo" style="display: none;" playsinline></video>
     </div>
@@ -48,8 +67,6 @@
     <div class="drop-zone" id="dropZone">
     </div>
 
-    <button class="settings-button" onclick="toggleSettings()">CUSTOMIZATION</button>
-
     <div class="image-preview-container" id="imagePreviewContainer">
         <div class="image-preview-inner">
             <img id="imagePreview" src="" alt="Preview">
@@ -60,7 +77,9 @@
     <div class="settings-panel" id="settingsPanel">
         <div class="settings-panel-header">
             <h3>CUSTOMIZATION</h3>
-            <button class="close-button" onclick="toggleSettings()">✗</button>
+            <button class="close-button" onclick="toggleSettings()">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         
         <div class="settings-section">
