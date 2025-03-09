@@ -34,7 +34,7 @@ Try it out on CodePen: [BITBLOCK SEXY ASCII](https://codepen.io/OmPreetham/pen/e
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/bitblock.git
+git clone https://github.com/OmPreetham/bitblock.git
 cd bitblock
 ```
 
@@ -98,8 +98,4 @@ node server.js
 
 ## License
 
-MIT License - Feel free to use, modify, and distribute this code.
-
-## Credits
-
-Created with ♥ by [Your Name]
+[MIT License](LICENSE) - This code is free to use, modify, and distribute.

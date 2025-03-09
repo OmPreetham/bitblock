@@ -1,6 +1,12 @@
 const grid = document.getElementById('grid');
 const converterContainer = document.getElementById('converterContainer');
 const container = document.querySelector('.space-container');
+
+// Add click handler for BITBLOCK logo
+document.querySelector('.logo-letters').addEventListener('click', () => {
+    window.location.reload();
+});
+
 let mouseX = 0;
 let mouseY = 0;
 let targetX = 0;
@@ -37,6 +43,19 @@ let imageProcessingOptions = {
 
 let isWebcamActive = false;
 let webcamAnimationFrame = null;
+
+let isVideoPlaying = false;
+let videoAnimationFrame = null;
+
+// Add state management at the top
+const AppState = {
+    INITIAL: 'initial',
+    IMAGE: 'image',
+    VIDEO: 'video',
+    WEBCAM: 'webcam'
+};
+
+let currentState = AppState.INITIAL;
 
 function toggleSettings() {
     const panel = document.getElementById('settingsPanel');
@@ -243,17 +262,34 @@ dropZone.addEventListener('drop', async (e) => {
     dropZone.classList.remove('active');
     
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-        stopWebcam(); // Stop webcam before processing new image
+    if (!file) return;
+
+    cleanup(); // Clean up any existing state first
+
+    if (file.type.startsWith('image/')) {
         await processImage(file);
+    } else if (file.type.startsWith('video/')) {
+        await processVideo(file);
     }
 });
 
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
-        stopWebcam(); // Stop webcam before processing new image
+        cleanup(); // Clean up any existing state
         processImage(file);
+        // Reset file input to allow selecting the same file again
+        event.target.value = '';
+    }
+}
+
+function handleVideoSelect(event) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('video/')) {
+        cleanup(); // Clean up any existing state
+        processVideo(file);
+        // Reset file input to allow selecting the same file again
+        event.target.value = '';
     }
 }
 
@@ -269,60 +305,81 @@ function updateImagePreview(source) {
     
     if (source instanceof File) {
         // Handle file preview
-        previewImg.src = URL.createObjectURL(source);
+        const url = URL.createObjectURL(source);
+        previewImg.src = url;
         previewImg.style.display = 'block';
+        canvas.style.display = 'none';
         
-        // Let the browser maintain aspect ratio naturally
-        previewImg.style.width = 'auto';
-        previewImg.style.height = 'auto';
-        previewImg.style.maxWidth = '100%';
-        previewImg.style.maxHeight = '100%';
+        // Cleanup URL when image loads
+        previewImg.onload = () => URL.revokeObjectURL(url);
         
     } else if (source instanceof HTMLVideoElement) {
-        // For webcam preview, keep aspect ratio 
+        // For video preview, use canvas
+        canvas.style.display = 'block';
+        previewImg.style.display = 'none';
+        
+        // Set canvas size to match container size
+        const containerWidth = previewContainer.clientWidth;
+        const containerHeight = previewContainer.clientHeight;
         const videoRatio = source.videoWidth / source.videoHeight;
         
-        // Set canvas size to match video's aspect ratio
-        const maxWidth = previewContainer.clientWidth;
-        const maxHeight = previewContainer.clientHeight;
-        
+        // Calculate dimensions to fill container while maintaining aspect ratio
         let canvasWidth, canvasHeight;
         
-        if (maxWidth / videoRatio <= maxHeight) {
+        if (containerWidth / videoRatio <= containerHeight) {
             // Width is the limiting factor
-            canvasWidth = maxWidth;
-            canvasHeight = maxWidth / videoRatio;
+            canvasWidth = containerWidth;
+            canvasHeight = containerWidth / videoRatio;
         } else {
             // Height is the limiting factor
-            canvasHeight = maxHeight;
-            canvasWidth = maxHeight * videoRatio;
+            canvasHeight = containerHeight;
+            canvasWidth = containerHeight * videoRatio;
         }
         
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         
-        // Draw video frame to canvas, maintaining aspect ratio
-        ctx.drawImage(source, 0, 0, canvasWidth, canvasHeight);
+        // Center the canvas in the container
+        canvas.style.position = 'absolute';
+        canvas.style.left = '50%';
+        canvas.style.top = '50%';
+        canvas.style.transform = 'translate(-50%, -50%)';
         
-        // Convert canvas to image
-        previewImg.src = canvas.toDataURL('image/png');
-        previewImg.style.display = 'block';
-        previewImg.style.width = 'auto';
-        previewImg.style.height = 'auto';
-        previewImg.style.maxWidth = '100%';
-        previewImg.style.maxHeight = '100%';
+        // Draw video frame to canvas
+        ctx.drawImage(source, 0, 0, canvasWidth, canvasHeight);
     }
 }
 
+// Add video preview update function
+function updateVideoPreview() {
+    if (!isVideoPlaying && currentState !== AppState.VIDEO) return;
+    
+    const video = document.getElementById('videoPlayer');
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Update canvas with current video frame
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Request next frame
+    requestAnimationFrame(updateVideoPreview);
+}
+
 async function processImage(file) {
+    cleanup(); // Clean up any existing state before processing image
+    
     currentImageFile = file;
+    currentState = AppState.IMAGE;
+    
     const initialMessage = document.getElementById('initialMessage');
+    const asciiControls = document.getElementById('asciiControls');
+    const videoControls = document.getElementById('videoControls');
+    
     initialMessage.classList.add('bottom');
-    document.getElementById('asciiControls').style.display = 'flex';
+    asciiControls.style.display = 'flex';
+    videoControls.style.display = 'none';
     
-    // Update preview with the file
     updateImagePreview(file);
-    
     reprocessImage();
 }
 
@@ -434,6 +491,8 @@ function exportAsTxt() {
 }
 
 async function startWebcam() {
+    cleanup(); // Clean up any existing state before starting webcam
+    
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ 
             video: { 
@@ -443,14 +502,21 @@ async function startWebcam() {
             } 
         });
         
+        // Update state
+        currentState = AppState.WEBCAM;
+        
         const video = document.getElementById('webcamVideo');
+        const initialMessage = document.getElementById('initialMessage');
+        const asciiControls = document.getElementById('asciiControls');
+        const videoControls = document.getElementById('videoControls');
+        
         video.srcObject = stream;
         await video.play();
         
-        // Move buttons to bottom and show controls
-        const initialMessage = document.getElementById('initialMessage');
+        // Show/hide appropriate controls
         initialMessage.classList.add('bottom');
-        document.getElementById('asciiControls').style.display = 'flex';
+        asciiControls.style.display = 'flex';
+        videoControls.style.display = 'none';
         
         // Update webcam button
         const webcamButton = document.querySelector('.webcam-button');
@@ -468,6 +534,7 @@ async function startWebcam() {
     } catch (err) {
         console.error('Error accessing webcam:', err);
         alert('Unable to access webcam. Please make sure you have granted camera permissions.');
+        cleanup();
     }
 }
 
@@ -497,10 +564,11 @@ function stopWebcam() {
         webcamButton.onclick = startWebcam;
         
         isWebcamActive = false;
-        document.getElementById('asciiOutput').textContent = ''; // Clear the output
-        
-        // Hide preview container
+        currentState = AppState.INITIAL;
+        document.getElementById('asciiOutput').textContent = '';
         document.getElementById('imagePreviewContainer').style.display = 'none';
+        document.getElementById('asciiControls').style.display = 'none';
+        document.getElementById('initialMessage').classList.remove('bottom');
     }
 }
 
@@ -563,3 +631,260 @@ animate();
 
 // Clean up webcam when window is closed
 window.addEventListener('beforeunload', stopWebcam);
+
+async function processVideo(file) {
+    if (!file || !file.type.startsWith('video/')) {
+        console.error('Invalid video file');
+        return;
+    }
+
+    cleanup(); // Clean up any existing state before processing video
+    
+    const video = document.getElementById('videoPlayer');
+    const videoControls = document.getElementById('videoControls');
+    const initialMessage = document.getElementById('initialMessage');
+    const asciiControls = document.getElementById('asciiControls');
+    const asciiOutput = document.getElementById('asciiOutput');
+    
+    // Update state
+    currentState = AppState.VIDEO;
+    
+    try {
+        // Create video URL and set up video element
+        const videoUrl = URL.createObjectURL(file);
+        video.src = videoUrl;
+        video.currentTime = 0;
+        
+        // Show necessary elements
+        initialMessage.classList.add('bottom');
+        asciiControls.style.display = 'flex';
+        videoControls.style.display = 'flex';
+        asciiOutput.style.display = 'block';
+        
+        // Wait for video metadata to load
+        await new Promise((resolve, reject) => {
+            video.onloadedmetadata = resolve;
+            video.onerror = reject;
+        });
+        
+        // Initialize preview
+        updateImagePreview(video);
+        
+        // Start playing automatically
+        video.play().then(() => {
+            isVideoPlaying = true;
+            const playPauseIcon = document.getElementById('playPauseIcon');
+            playPauseIcon.className = 'fas fa-pause';
+            processVideoFrame();
+            updateVideoPreview();
+        }).catch(error => {
+            console.error('Error auto-playing video:', error);
+            // Fallback to paused state if autoplay fails
+            video.pause();
+            isVideoPlaying = false;
+            const playPauseIcon = document.getElementById('playPauseIcon');
+            playPauseIcon.className = 'fas fa-play';
+        });
+        
+        updateVideoTime();
+        
+    } catch (error) {
+        console.error('Error loading video:', error);
+        alert('Error loading video. Please try another file.');
+        cleanup();
+    }
+}
+
+function processVideoFrame() {
+    if (!isVideoPlaying) return;
+    
+    const video = document.getElementById('videoPlayer');
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const asciiOutput = document.getElementById('asciiOutput');
+    
+    // Set dimensions
+    const width = parseInt(document.getElementById('widthInput').value);
+    const height = Math.floor(width * (video.videoHeight / video.videoWidth) * 0.5);
+    
+    canvas.width = width;
+    canvas.height = height;
+    
+    try {
+        // Draw and process frame
+        ctx.drawImage(video, 0, 0, width, height);
+        
+        // Apply filters
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        tempCtx.filter = `brightness(${imageProcessingOptions.brightness}%) contrast(${imageProcessingOptions.contrast}%)`;
+        tempCtx.drawImage(canvas, 0, 0);
+        
+        const imageData = tempCtx.getImageData(0, 0, width, height);
+        const pixels = imageData.data;
+        
+        applyImageProcessing(pixels, width, height);
+        
+        // Convert to ASCII
+        let ascii = '';
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const idx = (y * width + x) * 4;
+                const brightness = (pixels[idx] + pixels[idx + 1] + pixels[idx + 2]) / 765;
+                ascii += getAsciiChar(1 - brightness); // Invert brightness for better contrast
+            }
+            ascii += '\n';
+        }
+        
+        // Update display
+        asciiOutput.textContent = ascii;
+        updateVideoTime();
+        
+        // Continue animation if playing
+        if (video.currentTime < video.duration) {
+            videoAnimationFrame = requestAnimationFrame(processVideoFrame);
+        } else {
+            isVideoPlaying = false;
+            document.getElementById('playPauseIcon').className = 'fas fa-play';
+        }
+    } catch (error) {
+        console.error('Error processing video frame:', error);
+        isVideoPlaying = false;
+    }
+}
+
+function toggleVideoPlayback() {
+    const video = document.getElementById('videoPlayer');
+    const playPauseIcon = document.getElementById('playPauseIcon');
+    
+    if (isVideoPlaying) {
+        video.pause();
+        playPauseIcon.className = 'fas fa-play';
+        if (videoAnimationFrame) {
+            cancelAnimationFrame(videoAnimationFrame);
+            videoAnimationFrame = null;
+        }
+        isVideoPlaying = false;
+    } else {
+        video.play().then(() => {
+            playPauseIcon.className = 'fas fa-pause';
+            isVideoPlaying = true;
+            processVideoFrame();
+            updateVideoPreview(); // Start preview updates
+        }).catch(error => {
+            console.error('Error playing video:', error);
+            isVideoPlaying = false;
+        });
+    }
+}
+
+function seekVideo(value) {
+    const video = document.getElementById('videoPlayer');
+    const time = (value / 100) * video.duration;
+    video.currentTime = time;
+    updateVideoTime();
+}
+
+function updateVideoTime() {
+    const video = document.getElementById('videoPlayer');
+    const progress = document.getElementById('videoProgress');
+    const timeDisplay = document.getElementById('videoTime');
+    
+    const currentMinutes = Math.floor(video.currentTime / 60);
+    const currentSeconds = Math.floor(video.currentTime % 60);
+    const totalMinutes = Math.floor(video.duration / 60);
+    const totalSeconds = Math.floor(video.duration % 60);
+    
+    const currentTime = `${currentMinutes.toString().padStart(2, '0')}:${currentSeconds.toString().padStart(2, '0')}`;
+    const totalTime = `${totalMinutes.toString().padStart(2, '0')}:${totalSeconds.toString().padStart(2, '0')}`;
+    
+    timeDisplay.textContent = `${currentTime} / ${totalTime}`;
+    progress.value = (video.currentTime / video.duration) * 100;
+}
+
+// Update cleanup function
+function cleanup() {
+    // Stop webcam if active
+    if (isWebcamActive) {
+        const video = document.getElementById('webcamVideo');
+        if (video.srcObject) {
+            const stream = video.srcObject;
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            video.srcObject = null;
+        }
+        
+        if (webcamAnimationFrame) {
+            cancelAnimationFrame(webcamAnimationFrame);
+            webcamAnimationFrame = null;
+        }
+        
+        // Reset webcam button
+        const webcamButton = document.querySelector('.webcam-button');
+        webcamButton.classList.remove('active');
+        webcamButton.innerHTML = `
+            <span class="pulse-dot"></span>
+            <i class="fas fa-video"></i>
+            <span class="button-text">WEBCAM</span>
+        `;
+        webcamButton.onclick = startWebcam;
+        isWebcamActive = false;
+    }
+    
+    // Stop video if playing
+    if (isVideoPlaying || currentState === AppState.VIDEO) {
+        const video = document.getElementById('videoPlayer');
+        video.pause();
+        if (videoAnimationFrame) {
+            cancelAnimationFrame(videoAnimationFrame);
+            videoAnimationFrame = null;
+        }
+        if (video.src) {
+            URL.revokeObjectURL(video.src);
+            video.src = '';
+            video.load(); // Force cleanup of video resources
+        }
+        isVideoPlaying = false;
+    }
+    
+    // Clean up image resources
+    if (currentImageFile) {
+        if (currentImageFile instanceof File) {
+            URL.revokeObjectURL(currentImageFile);
+        }
+        currentImageFile = null;
+    }
+    
+    // Clean up preview
+    const previewImg = document.getElementById('imagePreview');
+    if (previewImg.src) {
+        URL.revokeObjectURL(previewImg.src);
+        previewImg.src = '';
+    }
+    
+    // Reset all controls and state
+    document.getElementById('videoControls').style.display = 'none';
+    document.getElementById('playPauseIcon').className = 'fas fa-play';
+    document.getElementById('asciiControls').style.display = 'none';
+    document.getElementById('imagePreviewContainer').style.display = 'none';
+    document.getElementById('asciiOutput').textContent = '';
+    document.getElementById('initialMessage').classList.remove('bottom');
+    
+    // Reset state
+    currentState = AppState.INITIAL;
+}
+
+window.addEventListener('beforeunload', cleanup);
+
+// Add a resize observer to handle preview container size changes
+const previewContainer = document.getElementById('imagePreviewContainer');
+const resizeObserver = new ResizeObserver(entries => {
+    if (currentState === AppState.VIDEO && isVideoPlaying) {
+        const video = document.getElementById('videoPlayer');
+        updateImagePreview(video);
+    }
+});
+resizeObserver.observe(previewContainer);
