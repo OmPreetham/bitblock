@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BITBLOCK - SEXY ASCII</title>
     
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="BITBLOCK">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="logo.jpeg">
+    
     <!-- SEO Meta Tags -->
     <meta name="description" content="Transform images, videos, and webcam feeds into stunning ASCII art in real-time. Free online ASCII art generator with customizable styles, video support, and live preview.">
     <meta name="keywords" content="ASCII art, text art, image to ASCII, video to ASCII, ASCII generator, ASCII converter, webcam ASCII, real-time ASCII">
@@ -13,21 +21,21 @@
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://bitblock.ompreetham.com/">
+    <meta property="og:url" content="https://bandi.ompreetham.com/">
     <meta property="og:title" content="BITBLOCK - SEXY ASCII">
     <meta property="og:description" content="Transform images, videos, and webcam feeds into stunning ASCII art in real-time. Free online ASCII art generator with customizable styles.">
-    <meta property="og:image" content="https://bitblock.ompreetham.com/logo.png">
+    <meta property="og:image" content="https://bandi.ompreetham.com/logo.jpeg">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://bitblock.ompreetham.com/">
+    <meta property="twitter:url" content="https://bandi.ompreetham.com/">
     <meta property="twitter:title" content="BITBLOCK - SEXY ASCII">
     <meta property="twitter:description" content="Transform images, videos, and webcam feeds into stunning ASCII art in real-time. Free online ASCII art generator with customizable styles.">
-    <meta property="twitter:image" content="https://bitblock.ompreetham.com/logo.png">
+    <meta property="twitter:image" content="https://bandi.ompreetham.com/logo.jpeg">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="logo.png">
-    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="icon" type="image/jpeg" href="logo.jpeg">
+    <link rel="apple-touch-icon" href="logo.jpeg">
 
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -40,8 +48,8 @@
         "@type": "WebApplication",
         "name": "BITBLOCK SEXY ASCII",
         "description": "Real-time ASCII art generator supporting images, videos, and webcam feeds",
-        "url": "https://bitblock.ompreetham.com",
-        "image": "https://bitblock.ompreetham.com/logo.png",
+        "url": "https://bandi.ompreetham.com",
+        "image": "https://bandi.ompreetham.com/logo.jpeg",
         "applicationCategory": "MultimediaApplication",
         "operatingSystem": "Any",
         "author": {
@@ -63,6 +71,21 @@
             "Multiple character sets"
         ]
     }
+    </script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
     </script>
 </head>
 <body>
