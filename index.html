@@ -3,89 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BITBLOCK - SEXY ASCII</title>
+    <title>BITBLOCK - SEXY ASCII | Real-time ASCII Art Generator</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Transform images, videos, and webcam feeds into stunning ASCII art in real-time. Free online ASCII art generator with customizable styles, video support, and live preview.">
+    <meta name="keywords" content="ASCII art, text art, image to ASCII, video to ASCII, ASCII generator, ASCII converter, webcam ASCII, real-time ASCII">
+    <meta name="author" content="Om Preetham">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bandi.ompreetham.com/">
+    <meta property="og:title" content="BITBLOCK - SEXY ASCII | Real-time ASCII Art Generator">
+    <meta property="og:description" content="Transform images, videos, and webcam feeds into stunning ASCII art in real-time. Free online ASCII art generator with customizable styles.">
+    <meta property="og:image" content="https://bandi.ompreetham.com/logo.jpeg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://bandi.ompreetham.com/">
+    <meta property="twitter:title" content="BITBLOCK - SEXY ASCII | Real-time ASCII Art Generator">
+    <meta property="twitter:description" content="Transform images, videos, and webcam feeds into stunning ASCII art in real-time. Free online ASCII art generator with customizable styles.">
+    <meta property="twitter:image" content="https://bandi.ompreetham.com/logo.jpeg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="logo.jpeg">
+    <link rel="apple-touch-icon" href="logo.jpeg">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "BITBLOCK SEXY ASCII",
+        "description": "Real-time ASCII art generator supporting images, videos, and webcam feeds",
+        "url": "https://bandi.ompreetham.com",
+        "image": "https://bandi.ompreetham.com/logo.jpeg",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "author": {
+            "@type": "Person",
+            "name": "Om Preetham",
+            "url": "https://ompreetham.com"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "Image to ASCII conversion",
+            "Video to ASCII animation",
+            "Webcam ASCII feed",
+            "Customizable styles",
+            "Real-time preview",
+            "Multiple character sets"
+        ]
+    }
+    </script>
 </head>
 <body>
-    <div class="logo-container">
-        <div class="logo-letters">
-            <div class="logo-letter">B</div>
-            <div class="logo-letter">I</div>
-            <div class="logo-letter">T</div>
-            <div class="logo-letter">B</div>
-            <div class="logo-letter">L</div>
-            <div class="logo-letter">O</div>
-            <div class="logo-letter">C</div>
-            <div class="logo-letter">K</div>
+    <!-- Main Header -->
+    <header class="logo-container" role="banner">
+        <div class="logo-letters" role="heading" aria-label="BITBLOCK">
+            <div class="logo-letter" aria-hidden="true">B</div>
+            <div class="logo-letter" aria-hidden="true">I</div>
+            <div class="logo-letter" aria-hidden="true">T</div>
+            <div class="logo-letter" aria-hidden="true">B</div>
+            <div class="logo-letter" aria-hidden="true">L</div>
+            <div class="logo-letter" aria-hidden="true">O</div>
+            <div class="logo-letter" aria-hidden="true">C</div>
+            <div class="logo-letter" aria-hidden="true">K</div>
         </div>
-        <div class="logo-subtitle">SEXY ASCII</div>
-    </div>
+        <div class="logo-subtitle" role="heading" aria-label="SEXY ASCII">SEXY ASCII</div>
+    </header>
 
-    <div class="bottom-controls">
-        <div class="ascii-controls" id="asciiControls" style="display: none;">
-            <button class="ascii-button" onclick="copyToClipboard()">
-                <i class="fas fa-copy"></i>
+    <!-- Main Controls -->
+    <div class="bottom-controls" role="toolbar" aria-label="Main controls">
+        <div class="ascii-controls" id="asciiControls" style="display: none;" role="group" aria-label="ASCII output controls">
+            <button class="ascii-button" onclick="copyToClipboard()" aria-label="Copy ASCII text">
+                <i class="fas fa-copy" aria-hidden="true"></i>
                 <span class="button-text">COPY TEXT</span>
             </button>
-            <button class="ascii-button" onclick="exportAsTxt()">
-                <i class="fas fa-download"></i>
+            <button class="ascii-button" onclick="exportAsTxt()" aria-label="Save as text file">
+                <i class="fas fa-download" aria-hidden="true"></i>
                 <span class="button-text">SAVE TXT</span>
             </button>
         </div>
 
-        <div class="initial-message" id="initialMessage">
+        <div class="initial-message" id="initialMessage" role="group" aria-label="Input controls">
             <div class="button-group">
-                <button class="ascii-button" onclick="document.getElementById('mediaInput').click()">
-                    <i class="fas fa-upload"></i>
+                <button class="ascii-button" onclick="document.getElementById('mediaInput').click()" aria-label="Select or drop media file">
+                    <i class="fas fa-upload" aria-hidden="true"></i>
                     <span class="button-text">SELECT / DROP</span>
                 </button>
-                <button class="ascii-button webcam-button" onclick="startWebcam()">
-                    <span class="pulse-dot"></span>
-                    <i class="fas fa-video"></i>
+                <button class="ascii-button webcam-button" onclick="startWebcam()" aria-label="Start webcam">
+                    <span class="pulse-dot" aria-hidden="true"></span>
+                    <i class="fas fa-video" aria-hidden="true"></i>
                     <span class="button-text">WEBCAM</span>
                 </button>
             </div>
         </div>
 
-        <button class="settings-button" onclick="toggleSettings()">
-            <i class="fas fa-sliders-h"></i>
+        <button class="settings-button" onclick="toggleSettings()" aria-label="Open customization settings">
+            <i class="fas fa-sliders-h" aria-hidden="true"></i>
             <span class="button-text">CUSTOMIZATION</span>
         </button>
     </div>
 
-    <div class="space-container">
-        <div class="grid" id="grid"></div>
-        <input type="file" id="mediaInput" accept="image/*,video/*" style="display: none;" onchange="handleMediaSelect(event)">
-        <video id="webcamVideo" style="display: none;" playsinline></video>
-        <video id="videoPlayer" style="display: none;" playsinline></video>
+    <!-- Main Content Area -->
+    <main class="space-container" role="main">
+        <div class="grid" id="grid" aria-hidden="true"></div>
+        <input type="file" id="mediaInput" accept="image/*,video/*" style="display: none;" onchange="handleMediaSelect(event)" aria-label="File input for images and videos">
+        <video id="webcamVideo" style="display: none;" playsinline aria-label="Webcam video feed"></video>
+        <video id="videoPlayer" style="display: none;" playsinline aria-label="Video player"></video>
+    </main>
+
+    <!-- Video Controls -->
+    <div class="video-controls" id="videoControls" style="display: none;" role="group" aria-label="Video playback controls">
+        <button class="ascii-button" onclick="skipBackward()" aria-label="Skip backward 10 seconds">
+            <i class="fas fa-backward" aria-hidden="true"></i>
+        </button>
+        <button class="ascii-button" onclick="toggleVideoPlayback()" aria-label="Play or pause video">
+            <i class="fas fa-play" id="playPauseIcon" aria-hidden="true"></i>
+        </button>
+        <button class="ascii-button" onclick="skipForward()" aria-label="Skip forward 10 seconds">
+            <i class="fas fa-forward" aria-hidden="true"></i>
+        </button>
+        <button class="ascii-button" onclick="toggleMute()" aria-label="Toggle mute">
+            <i class="fas fa-volume-up" id="muteIcon" aria-hidden="true"></i>
+        </button>
+        <input type="range" id="videoProgress" value="0" min="0" max="100" oninput="seekVideo(this.value)" aria-label="Video progress">
+        <span id="videoTime" role="timer" aria-label="Video time">00:00 / 00:00</span>
     </div>
 
-    <div class="video-controls" id="videoControls" style="display: none;">
-        <button class="ascii-button" onclick="skipBackward()">
-            <i class="fas fa-backward"></i>
-        </button>
-        <button class="ascii-button" onclick="toggleVideoPlayback()">
-            <i class="fas fa-play" id="playPauseIcon"></i>
-        </button>
-        <button class="ascii-button" onclick="skipForward()">
-            <i class="fas fa-forward"></i>
-        </button>
-        <button class="ascii-button" onclick="toggleMute()">
-            <i class="fas fa-volume-up" id="muteIcon"></i>
-        </button>
-        <input type="range" id="videoProgress" value="0" min="0" max="100" oninput="seekVideo(this.value)">
-        <span id="videoTime">00:00 / 00:00</span>
+    <!-- ASCII Output -->
+    <div class="converter-container" id="converterContainer" role="region" aria-label="ASCII art output">
+        <pre id="asciiOutput" class="ascii-output" aria-live="polite"></pre>
     </div>
 
-    <div class="converter-container" id="converterContainer">
-        <pre id="asciiOutput" class="ascii-output"></pre>
-    </div>
+    <!-- Drop Zone -->
+    <div class="drop-zone" id="dropZone" role="region" aria-label="Drop zone for files"></div>
 
-    <div class="drop-zone" id="dropZone">
-    </div>
-
-    <div class="image-preview-container" id="imagePreviewContainer">
+    <!-- Preview Container -->
+    <div class="image-preview-container" id="imagePreviewContainer" role="complementary" aria-label="Media preview">
         <div class="image-preview-inner">
             <img id="imagePreview" src="" alt="Preview">
             <canvas id="previewCanvas" width="100" height="100" style="display: none;"></canvas>
@@ -190,6 +254,7 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="script.js"></script>
 </body>
 </html> 
