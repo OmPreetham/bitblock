@@ -273,24 +273,20 @@ dropZone.addEventListener('drop', async (e) => {
     }
 });
 
-function handleFileSelect(event) {
+function handleMediaSelect(event) {
     const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-        cleanup(); // Clean up any existing state
-        processImage(file);
-        // Reset file input to allow selecting the same file again
-        event.target.value = '';
-    }
-}
+    if (!file) return;
 
-function handleVideoSelect(event) {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('video/')) {
-        cleanup(); // Clean up any existing state
+    cleanup(); // Clean up any existing state
+
+    if (file.type.startsWith('image/')) {
+        processImage(file);
+    } else if (file.type.startsWith('video/')) {
         processVideo(file);
-        // Reset file input to allow selecting the same file again
-        event.target.value = '';
     }
+    
+    // Reset file input to allow selecting the same file again
+    event.target.value = '';
 }
 
 // Image preview functionality
@@ -655,6 +651,10 @@ async function processVideo(file) {
         video.src = videoUrl;
         video.currentTime = 0;
         
+        // Set initial volume
+        video.volume = 1.0;
+        video.muted = false;
+        
         // Show necessary elements
         initialMessage.classList.add('bottom');
         asciiControls.style.display = 'flex';
@@ -671,20 +671,21 @@ async function processVideo(file) {
         updateImagePreview(video);
         
         // Start playing automatically
-        video.play().then(() => {
+        try {
+            await video.play();
             isVideoPlaying = true;
             const playPauseIcon = document.getElementById('playPauseIcon');
             playPauseIcon.className = 'fas fa-pause';
             processVideoFrame();
             updateVideoPreview();
-        }).catch(error => {
-            console.error('Error auto-playing video:', error);
-            // Fallback to paused state if autoplay fails
+        } catch (error) {
+            console.error('Autoplay failed:', error);
+            // If autoplay fails (e.g., browser policy), fall back to paused state
             video.pause();
             isVideoPlaying = false;
             const playPauseIcon = document.getElementById('playPauseIcon');
             playPauseIcon.className = 'fas fa-play';
-        });
+        }
         
         updateVideoTime();
         
@@ -773,7 +774,7 @@ function toggleVideoPlayback() {
             playPauseIcon.className = 'fas fa-pause';
             isVideoPlaying = true;
             processVideoFrame();
-            updateVideoPreview(); // Start preview updates
+            updateVideoPreview();
         }).catch(error => {
             console.error('Error playing video:', error);
             isVideoPlaying = false;
@@ -803,6 +804,32 @@ function updateVideoTime() {
     
     timeDisplay.textContent = `${currentTime} / ${totalTime}`;
     progress.value = (video.currentTime / video.duration) * 100;
+}
+
+// Add new video control functions
+function skipForward() {
+    const video = document.getElementById('videoPlayer');
+    video.currentTime = Math.min(video.currentTime + 10, video.duration);
+    updateVideoTime();
+}
+
+function skipBackward() {
+    const video = document.getElementById('videoPlayer');
+    video.currentTime = Math.max(video.currentTime - 10, 0);
+    updateVideoTime();
+}
+
+function toggleMute() {
+    const video = document.getElementById('videoPlayer');
+    const muteIcon = document.getElementById('muteIcon');
+    
+    video.muted = !video.muted;
+    
+    if (video.muted) {
+        muteIcon.className = 'fas fa-volume-mute';
+    } else {
+        muteIcon.className = 'fas fa-volume-up';
+    }
 }
 
 // Update cleanup function

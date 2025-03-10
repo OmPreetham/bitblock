@@ -36,13 +36,9 @@
 
         <div class="initial-message" id="initialMessage">
             <div class="button-group">
-                <button class="ascii-button" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-image"></i>
+                <button class="ascii-button" onclick="document.getElementById('mediaInput').click()">
+                    <i class="fas fa-upload"></i>
                     <span class="button-text">SELECT / DROP</span>
-                </button>
-                <button class="ascii-button" onclick="document.getElementById('videoInput').click()">
-                    <i class="fas fa-film"></i>
-                    <span class="button-text">VIDEO</span>
                 </button>
                 <button class="ascii-button webcam-button" onclick="startWebcam()">
                     <span class="pulse-dot"></span>
@@ -60,15 +56,23 @@
 
     <div class="space-container">
         <div class="grid" id="grid"></div>
-        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
-        <input type="file" id="videoInput" accept="video/*" style="display: none;" onchange="handleVideoSelect(event)">
+        <input type="file" id="mediaInput" accept="image/*,video/*" style="display: none;" onchange="handleMediaSelect(event)">
         <video id="webcamVideo" style="display: none;" playsinline></video>
         <video id="videoPlayer" style="display: none;" playsinline></video>
     </div>
 
     <div class="video-controls" id="videoControls" style="display: none;">
+        <button class="ascii-button" onclick="skipBackward()">
+            <i class="fas fa-backward"></i>
+        </button>
         <button class="ascii-button" onclick="toggleVideoPlayback()">
             <i class="fas fa-play" id="playPauseIcon"></i>
+        </button>
+        <button class="ascii-button" onclick="skipForward()">
+            <i class="fas fa-forward"></i>
+        </button>
+        <button class="ascii-button" onclick="toggleMute()">
+            <i class="fas fa-volume-up" id="muteIcon"></i>
         </button>
         <input type="range" id="videoProgress" value="0" min="0" max="100" oninput="seekVideo(this.value)">
         <span id="videoTime">00:00 / 00:00</span>

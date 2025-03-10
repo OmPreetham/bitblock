@@ -798,6 +798,7 @@ select::-ms-expand {
     backdrop-filter: blur(4px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     z-index: 1000;
+    white-space: nowrap;
 }
 
 .video-controls input[type="range"] {
@@ -830,20 +831,59 @@ select::-ms-expand {
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.video-controls .ascii-button:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 @media (max-width: 768px) {
     .video-controls {
         bottom: 140px;
         padding: 8px 15px;
+        width: 90%;
+        max-width: none;
+        justify-content: center;
+        gap: 10px;
     }
 
     .video-controls input[type="range"] {
-        width: 150px;
+        width: 100px;
     }
 
     .video-controls span {
         min-width: 80px;
+        font-size: 11px;
+    }
+
+    .video-controls .ascii-button {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .video-controls {
+        padding: 6px 10px;
+        gap: 8px;
+    }
+
+    .video-controls input[type="range"] {
+        width: 60px;
+    }
+
+    .video-controls span {
+        min-width: 70px;
+        font-size: 10px;
+    }
+
+    .video-controls .ascii-button {
+        width: 24px;
+        height: 24px;
         font-size: 11px;
     }
 }
