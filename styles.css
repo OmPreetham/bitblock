@@ -898,8 +898,8 @@ select::-ms-expand {
     .grid {
         background-image: 
             radial-gradient(circle at 0 0, rgba(0, 0, 0, 0.5) 1px, transparent 1px),
-            linear-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+            linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
     }
 
     .settings-button,
