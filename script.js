@@ -1,3 +1,18 @@
+// Theme handling
+const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+function handleThemeChange(e) {
+    const isDarkMode = e.matches;
+    document.getElementById('colorInput').value = isDarkMode ? '#ffffff' : '#000000';
+    updateTextColor(isDarkMode ? '#ffffff' : '#000000');
+}
+
+// Listen for theme changes
+prefersDarkScheme.addListener(handleThemeChange);
+
+// Initial theme setup
+handleThemeChange(prefersDarkScheme);
+
 const grid = document.getElementById('grid');
 const converterContainer = document.getElementById('converterContainer');
 const container = document.querySelector('.space-container');
